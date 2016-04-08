@@ -1,6 +1,7 @@
 var app = require('application');
 
 var output;
+var wantedCamera;
 
 function onNavigatingTo(args) {
     var page = args.object;
@@ -45,10 +46,29 @@ function onCreatingView(args) {
         view.layer.addSublayer(videoLayer);
         args.view = view;
                
-    } 
-    // else if (app.android) {
-    //     var appContext = app.android.context;
-    //     var cameraManager = appContext.getSystemService(android.content.Context.CAMERA_SERVICE);
-    // }
+    } else if (app.android) {
+        var appContext = app.android.context;
+        var cameraManager = appContext.getSystemService(android.content.Context.CAMERA_SERVICE);
+        
+        var cameras = cameraManager.getCameraIdList();
+        console.log("total cameras: " + cameras.length);
+        
+        for (var index = 0; index < cameras.length; index++) {
+            var currentCamera = cameras[index];
+            var currentCameraSpecs = cameraManager.getCameraCharacteristics(currentCamera);
+            
+            var facing = currentCameraSpecs.get(android.hardware.camera2.CameraCharacteristics.LENS_FACING);
+
+            if(facing !== null && facing == android.hardware.camera2.CameraCharacteristics.LENS_FACING_BACK) {
+                console.log("get BACK camera");
+                
+                wantedCamera = currentCamera;
+                console.log(wantedCamera);
+            }
+        }
+        
+        // cameraManager.openCamera(wantedCamera, ) // give camera , callback , handler
+    }
+    
 }
 exports.onCreatingView = onCreatingView;
