@@ -1,3 +1,9 @@
+// link to camera example code weritten in java and used in this sample
+// https://github.com/googlesamples/android-Camera2Basic/blob/master/Application/src/main/java/com/example/android/camera2basic/Camera2BasicFragment.java#L323
+
+// link to example iOS native camera in Nativescript code used in this sample
+// https://github.com/NativeScript/sample-iOS-CameraApp
+
 var app = require('application');
 
 var page;
@@ -31,7 +37,7 @@ function onLoaded(args) {
     page = args.object;
     
     if(app.android) {
-        // mFile = new java.io.File(app.android.foregroundActivity.getExternalFilesDir(null), "pic.jpg");
+        // mFile = new java.io.File(getActivity().getExternalFilesDir(null), "pic.jpg");
     }
 }
 exports.onLoaded = onLoaded;
@@ -55,8 +61,15 @@ exports.onTakeShot = onTakeShot;
 function lockFocus() {
     // console.log("lockFocus");
     mState = STATE_WAITING_LOCK;
+    mCaptureSession.capture(mPreviewRequestBuilder.build(), mCaptureCallback, mBackgroundHandler);  
+}
+
+function runPrecaptureSequence() {
+    // This is how to tell the camera to trigger.
+    mPreviewRequestBuilder.set(android.hardware.camera2.CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, android.hardware.camera2.CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START);
+    // Tell #mCaptureCallback to wait for the precapture sequence to be set.
+    mState = STATE_WAITING_PRECAPTURE;
     mCaptureSession.capture(mPreviewRequestBuilder.build(), mCaptureCallback, mBackgroundHandler);
-    
 }
 
 function captureStillPicture() {
@@ -64,10 +77,14 @@ function captureStillPicture() {
     var captureBuilder = mCameraDevice.createCaptureRequest(android.hardware.camera2.CameraDevice.TEMPLATE_STILL_CAPTURE);
     captureBuilder.addTarget(mImageReader.getSurface());
     
+    // Use the same AE and AF modes as the preview.
+    captureBuilder.set(android.hardware.camera2.CaptureRequest.CONTROL_AF_MODE, android.hardware.camera2.CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
+            setAutoFlash(captureBuilder);
+    
     var CaptureCallback = android.hardware.camera2.CameraCaptureSession.CaptureCallback.extend({
         onCaptureCompleted: function (session, request, result) {
             console.log("onCaptureCompleted");
-            console.log(mFile.toString());
+            // console.log(mFile.toString());
         }
     });
 
@@ -295,13 +312,15 @@ function onCreatingView(args) {
             // console.log("Format: " + format + " " + format.length + " " + format[4]);
             
             // we are taking not the largest possible but some of the 5th in the list of resolutions
-            var dimensions = format[4].toString().split('x');
-            var largestWidth = +dimensions[0];
-            var largestHeight = +dimensions[1];
-
-            // set the output image characteristics
-            mImageReader = new android.media.ImageReader.newInstance(largestWidth, largestHeight, android.graphics.ImageFormat.JPEG, /*maxImages*/2);
-            mImageReader.setOnImageAvailableListener(mOnImageAvailableListener, mBackgroundHandler);
+            if (format && format !== null) {
+                var dimensions = format[4].toString().split('x');
+                var largestWidth = +dimensions[0];
+                var largestHeight = +dimensions[1];
+                
+                // set the output image characteristics
+                mImageReader = new android.media.ImageReader.newInstance(largestWidth, largestHeight, android.graphics.ImageFormat.JPEG, /*maxImages*/2);
+                mImageReader.setOnImageAvailableListener(mOnImageAvailableListener, mBackgroundHandler);
+            }
             
         }
         
