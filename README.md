@@ -21,7 +21,7 @@ For better understanding of the tns commands [please follow this link](http://do
 ## Android * 
 Please note that we are uing **android.hardware.camera2** api which requires at least **API Level 21** 
 The application is showing the basic concepts behind camera2 API and allows you to start a CameraPreviewSession.. Also how to get the available cameras and their characteristics and use them to improve your camera app.
-Also an exmaple of how to use **CameraCaptureSession.CaptureCallback** and how to use the current states
+Also shows an example of how to use **CameraCaptureSession.CaptureCallback** and how to use the current states
 to capture pictures.
 
 
