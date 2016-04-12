@@ -1,5 +1,5 @@
 # sample-cameraApp (PoC)
-Sample NativeScript application showing usage of native camera api via {N} in iOS and Android (Proof of Concept)
+Sample NativeScript application showing usage of native camera api via {N} in iOS and Android (Proof of Concept).
 Showing basic functionality for the camera APIs (both iOS and the new camera API for Android - camera2) 
 including how to attach to a camera device and how to start a preview session.
 
