@@ -116,6 +116,7 @@ function createCameraPreviewSession() {
     mCameraDevice.createCaptureSession(surfaceList, new MyCameraCaptureSessionStateCallback(), null);
 }
 
+// from Java ; public static abstract class
 var MyCameraCaptureSessionStateCallback = android.hardware.camera2.CameraCaptureSession.StateCallback.extend({
     onConfigured: function(cameraCaptureSession) {
         console.log("onConfigured " + cameraCaptureSession);
@@ -140,6 +141,7 @@ var MyCameraCaptureSessionStateCallback = android.hardware.camera2.CameraCapture
     }
 });
 
+// from Java : public static abstract class
 var MyCaptureSessionCaptureCallback = android.hardware.camera2.CameraCaptureSession.CaptureCallback.extend({
     process: function(result) {
         switch (mState) {
@@ -200,6 +202,8 @@ var MyCaptureSessionCaptureCallback = android.hardware.camera2.CameraCaptureSess
     }
 });
   
+// (example for: java static interface to javaScript )
+// from Java : public static interface    
 var mOnImageAvailableListener = new android.media.ImageReader.OnImageAvailableListener({
     onImageAvailable: function (reader) {
         
@@ -208,7 +212,8 @@ var mOnImageAvailableListener = new android.media.ImageReader.OnImageAvailableLi
         console.log(reader);
     }
 });  
-    
+  
+// from Java : public static interface    
 var mSurfaceTextureListener = new android.view.TextureView.SurfaceTextureListener({
 
     onSurfaceTextureAvailable: function(texture, width, height) {
@@ -234,6 +239,7 @@ var mSurfaceTextureListener = new android.view.TextureView.SurfaceTextureListene
 
 });
 
+// from Java : public static abstract class
 var MyStateCallback = android.hardware.camera2.CameraDevice.StateCallback.extend({
     onOpened: function(cameraDevice) {
         console.log("onOpened " + cameraDevice);
