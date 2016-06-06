@@ -12,19 +12,21 @@ var page;
 var output;
 
 // for android camera2
-var mCameraId;
-var mCaptureSession;
-var mCameraDevice;
-var mStateCallBack;
-var mBackgroundHandler = null;
-var mCameraOpenCloseLock = new java.util.concurrent.Semaphore(1);
-var mTextureView;
-var mSurfaceTexture;
-var mPreviewRequestBuilder;
-var mPreviewRequest;
-var mImageReader;
-var mCaptureCallback;
-var mFile;
+if (app.android) {
+    var mCameraId;
+    var mCaptureSession;
+    var mCameraDevice;
+    var mStateCallBack;
+    var mBackgroundHandler = null;
+    var mCameraOpenCloseLock = new java.util.concurrent.Semaphore(1);
+    var mTextureView;
+    var mSurfaceTexture;
+    var mPreviewRequestBuilder;
+    var mPreviewRequest;
+    var mImageReader;
+    var mCaptureCallback;
+    var mFile;
+}
 
 var STATE_PREVIEW = 0;
 var STATE_WAITING_LOCK = 1;
@@ -35,10 +37,6 @@ var mState = STATE_PREVIEW;
 
 function onLoaded(args) {
     page = args.object;
-    
-    if(app.android) {
-        // mFile = new java.io.File(getActivity().getExternalFilesDir(null), "pic.jpg");
-    }
 }
 exports.onLoaded = onLoaded;
 
@@ -115,6 +113,110 @@ function createCameraPreviewSession() {
     surfaceList.add(surface);
     mCameraDevice.createCaptureSession(surfaceList, new MyCameraCaptureSessionStateCallback(), null);
 }
+
+function onCreatingView(args) {
+     
+    if (app.ios) {
+        var session = new AVCaptureSession();
+        session.sessionPreset = AVCaptureSessionPreset1280x720;
+
+        // Adding capture device
+        var device = AVCaptureDevice.defaultDeviceWithMediaType(AVMediaTypeVideo);
+        var input = AVCaptureDeviceInput.deviceInputWithDeviceError(device, null);
+        if (!input) {
+            throw new Error("Error trying to open camera.");
+        }
+        session.addInput(input);
+
+        output = new AVCaptureStillImageOutput();
+        session.addOutput(output);
+
+        session.startRunning();
+        
+        var videoLayer = AVCaptureVideoPreviewLayer.layerWithSession(session);
+        
+        var view = UIView.alloc().initWithFrame({ origin: { x: 0, y: 0 }, size: { width: 400, height: 600 } });
+        videoLayer.frame = view.bounds;
+        view.layer.addSublayer(videoLayer);
+        args.view = view;
+               
+    } else if (app.android) {
+        var appContext = app.android.context;
+
+        var cameraManager = appContext.getSystemService(android.content.Context.CAMERA_SERVICE); 
+        var cameras = cameraManager.getCameraIdList();
+        
+        for (var index = 0; index < cameras.length; index++) {
+            var currentCamera = cameras[index];
+            var currentCameraSpecs = cameraManager.getCameraCharacteristics(currentCamera);
+            
+            // get available lenses and set the camera-type (front or back)
+            var facing = currentCameraSpecs.get(android.hardware.camera2.CameraCharacteristics.LENS_FACING);
+            
+            if(facing !== null && facing == android.hardware.camera2.CameraCharacteristics.LENS_FACING_BACK) {
+                console.log("BACK camera"); 
+                mCameraId = currentCamera;
+            }
+            
+            // get all available sizes ad set the format
+            var map = currentCameraSpecs.get(android.hardware.camera2.CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+            var format = map.getOutputSizes(android.graphics.ImageFormat.JPEG);
+            // console.log("Format: " + format + " " + format.length + " " + format[4]);
+            
+            // we are taking not the largest possible but some of the 5th in the list of resolutions
+            if (format && format !== null) {
+                var dimensions = format[0].toString().split('x');
+                var largestWidth = +dimensions[0];
+                var largestHeight = +dimensions[1];
+                
+                // set the output image characteristics
+                mImageReader = new android.media.ImageReader.newInstance(largestWidth, largestHeight, android.graphics.ImageFormat.JPEG, /*maxImages*/2);
+                mImageReader.setOnImageAvailableListener(mOnImageAvailableListener, mBackgroundHandler);
+            }
+            
+        }
+        
+        mStateCallBack = new MyStateCallback();
+        
+        //API 23 runtime permission check
+        if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.LOLLIPOP_MR1){
+            console.log("checking presmisions ....");
+
+            if(android.support.v4.content.ContextCompat.checkSelfPermission(appContext, android.Manifest.permission.CAMERA) == android.content.pm.PackageManager.PERMISSION_GRANTED){
+                
+                console.log("Permison already granted!!!!!");
+                cameraManager.openCamera(mCameraId, mCameraDeviceStateCallback,mBackgroundHandler);
+
+            } else if(android.support.v4.content.ContextCompat.checkSelfPermission(appContext, android.Manifest.permission.CAMERA) == android.content.pm.PackageManager.PERMISSION_DENIED) {
+                console.log("NO PERMISIONS - about to try get them!!!"); // I am crashing here - wrong reference for shouldShowRequestPermissionRationale !?
+                
+                // console.log(android.support.v4.app.ActivityCompat.shouldShowRequestPermissionRationale(appContext, android.Manifest.permission.CAMERA).toString());
+                
+                // if (android.support.v4.app.ActivityCompat.shouldShowRequestPermissionRationale(appContext, android.Manifest.permission.CAMERA)){
+                //     console.log("No Permission to use the Camera services");
+                // }
+                
+                // // var stringArray = Array.create(java.lang.String, 1);
+                // // stringArray[0] = android.Manifest.permission.CAMERA;
+                // console.log("Permison is about to be granted!!!!");
+                // android.support.v4.app.ActivityCompat.requestPermissions(appContext, [], REQUEST_CAMERA_RESULT);
+            }
+        } else {
+            cameraManager.openCamera(mCameraId, mStateCallBack, mBackgroundHandler);
+        }
+        
+        // cameraManager.openCamera(mCameraId, mStateCallBack, mBackgroundHandler);
+        
+        mTextureView = new android.view.TextureView(app.android.context);
+        mTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
+        args.view = mTextureView;
+    }
+    
+}
+exports.onCreatingView = onCreatingView;
+
+
+    
 
 // from Java ; public static abstract class
 var MyCameraCaptureSessionStateCallback = android.hardware.camera2.CameraCaptureSession.StateCallback.extend({
@@ -201,7 +303,7 @@ var MyCaptureSessionCaptureCallback = android.hardware.camera2.CameraCaptureSess
         console.log(failure);
     }
 });
-  
+
 // (example for: java static interface to javaScript )
 // from Java : public static interface    
 var mOnImageAvailableListener = new android.media.ImageReader.OnImageAvailableListener({
@@ -212,7 +314,7 @@ var mOnImageAvailableListener = new android.media.ImageReader.OnImageAvailableLi
         console.log(reader);
     }
 });  
-  
+
 // from Java : public static interface    
 var mSurfaceTextureListener = new android.view.TextureView.SurfaceTextureListener({
 
@@ -268,76 +370,3 @@ var MyStateCallback = android.hardware.camera2.CameraDevice.StateCallback.extend
         console.log("onClosed");
     }
 });
-
-function onCreatingView(args) {
-    if (app.ios) {
-        var session = new AVCaptureSession();
-        session.sessionPreset = AVCaptureSessionPreset1280x720;
-
-        // Adding capture device
-        var device = AVCaptureDevice.defaultDeviceWithMediaType(AVMediaTypeVideo);
-        var input = AVCaptureDeviceInput.deviceInputWithDeviceError(device, null);
-        if (!input) {
-            throw new Error("Error trying to open camera.");
-        }
-        session.addInput(input);
-
-        output = new AVCaptureStillImageOutput();
-        session.addOutput(output);
-
-        session.startRunning();
-        
-        var videoLayer = AVCaptureVideoPreviewLayer.layerWithSession(session);
-        
-        var view = UIView.alloc().initWithFrame({ origin: { x: 0, y: 0 }, size: { width: 400, height: 600 } });
-        videoLayer.frame = view.bounds;
-        view.layer.addSublayer(videoLayer);
-        args.view = view;
-               
-    } else if (app.android) {
-        var appContext = app.android.context;
-
-        var cameraManager = appContext.getSystemService(android.content.Context.CAMERA_SERVICE); 
-        var cameras = cameraManager.getCameraIdList();
-        
-        for (var index = 0; index < cameras.length; index++) {
-            var currentCamera = cameras[index];
-            var currentCameraSpecs = cameraManager.getCameraCharacteristics(currentCamera);
-            
-            // get available lenses and set the camera-type (front or back)
-            var facing = currentCameraSpecs.get(android.hardware.camera2.CameraCharacteristics.LENS_FACING);
-            
-            if(facing !== null && facing == android.hardware.camera2.CameraCharacteristics.LENS_FACING_BACK) {
-                console.log("BACK camera"); 
-                mCameraId = currentCamera;
-            }
-            
-            // get all available sizes ad set the format
-            var map = currentCameraSpecs.get(android.hardware.camera2.CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-            var format = map.getOutputSizes(android.graphics.ImageFormat.JPEG);
-            // console.log("Format: " + format + " " + format.length + " " + format[4]);
-            
-            // we are taking not the largest possible but some of the 5th in the list of resolutions
-            if (format && format !== null) {
-                var dimensions = format[4].toString().split('x');
-                var largestWidth = +dimensions[0];
-                var largestHeight = +dimensions[1];
-                
-                // set the output image characteristics
-                mImageReader = new android.media.ImageReader.newInstance(largestWidth, largestHeight, android.graphics.ImageFormat.JPEG, /*maxImages*/2);
-                mImageReader.setOnImageAvailableListener(mOnImageAvailableListener, mBackgroundHandler);
-            }
-            
-        }
-        
-        mStateCallBack = new MyStateCallback();
-        
-        cameraManager.openCamera(mCameraId, mStateCallBack, mBackgroundHandler);
-        
-        mTextureView = new android.view.TextureView(app.android.context);
-        mTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
-        args.view = mTextureView;
-    }
-    
-}
-exports.onCreatingView = onCreatingView;

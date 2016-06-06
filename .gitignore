@@ -1,0 +1,12 @@
+# generated files
+*.map
+*.tgz
+.baseDir.ts
+.sublime-grunt.cache
+tscommand*.tmp.txt
+.tscache
+.vscode
+
+node_modules/
+dist/
+package/

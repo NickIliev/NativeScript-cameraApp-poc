@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="/usr/local/Cellar/android-sdk/24.4.1_1/extras/android/m2repository/com/android/support/support-annotations/23.3.0/support-annotations-23.3.0.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="db7791d75a07fef9844d06236c1c59ba7bf6997c">
+        <dex dex="/Users/niliev/Desktop/git-nick/sample-cameraApp/platforms/android/build/intermediates/pre-dexed/F0/debug/support-annotations-23.3.0_055ff2af33e445193a63d9f829631c03e618a519.jar" />
+    </item>
+    <item
+        jar="/Users/niliev/Desktop/git-nick/sample-cameraApp/platforms/android/libs/nativescript.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="57b3fa4e07f606555cab1d8373106c80acd79f64">
+        <dex dex="/Users/niliev/Desktop/git-nick/sample-cameraApp/platforms/android/build/intermediates/pre-dexed/F0/debug/nativescript_91b0ae79d25663d4838dfd5df97e01b5b59935c7.jar" />
+    </item>
+
+</items>

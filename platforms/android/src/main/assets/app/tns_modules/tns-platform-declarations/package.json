@@ -1,0 +1,75 @@
+{
+  "name": "tns-platform-declarations",
+  "version": "2.0.0",
+  "description": "Platform-specific TypeScript declarations for NativeScript for accessing native objects",
+  "main": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/NativeScript/NativeScript.git"
+  },
+  "keywords": [
+    "NativeScript",
+    "TypeScript",
+    "declarations",
+    "native",
+    "platform-specific",
+    "tns",
+    "ts",
+    "ns"
+  ],
+  "author": {
+    "name": "Telerik",
+    "email": "support@telerik.com",
+    "url": "http://www.telerik.com"
+  },
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/NativeScript/NativeScript/issues"
+  },
+  "homepage": "https://github.com/NativeScript/NativeScript#readme",
+  "_id": "tns-platform-declarations@2.0.0",
+  "_shasum": "44aecae72573d0b4d2bc9acea65034ae76a74186",
+  "_resolved": "https://registry.npmjs.org/tns-platform-declarations/-/tns-platform-declarations-2.0.0.tgz",
+  "_from": "tns-platform-declarations@>=2.0.0 <3.0.0",
+  "_npmVersion": "3.8.3",
+  "_nodeVersion": "5.10.0",
+  "_npmUser": {
+    "name": "erjangavalji",
+    "email": "erjan.gavalji@gmail.com"
+  },
+  "dist": {
+    "shasum": "44aecae72573d0b4d2bc9acea65034ae76a74186",
+    "tarball": "https://registry.npmjs.org/tns-platform-declarations/-/tns-platform-declarations-2.0.0.tgz"
+  },
+  "maintainers": [
+    {
+      "name": "enchev",
+      "email": "vladimir.enchev@gmail.com"
+    },
+    {
+      "name": "erjangavalji",
+      "email": "erjan.gavalji@gmail.com"
+    },
+    {
+      "name": "hdeshev",
+      "email": "hristo@deshev.com"
+    },
+    {
+      "name": "ligaz",
+      "email": "stefan.dobrev@gmail.com"
+    },
+    {
+      "name": "sdobrev",
+      "email": "stefan.dobrev@gmail.com"
+    }
+  ],
+  "_npmOperationalInternal": {
+    "host": "packages-16-east.internal.npmjs.com",
+    "tmp": "tmp/tns-platform-declarations-2.0.0.tgz_1461745453306_0.6038234306033701"
+  },
+  "directories": {},
+  "readme": "ERROR: No README data found!"
+}
