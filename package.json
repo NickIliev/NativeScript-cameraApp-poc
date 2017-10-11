@@ -5,11 +5,11 @@
 			"version": "2.0.1"
 		},
 		"tns-android": {
-			"version": "2.0.0"
+			"version": "3.2.0"
 		}
 	},
 	"dependencies": {
-		"tns-core-modules": "^2.0.0",
+		"tns-core-modules": "^3.2.0",
 		"tns-platform-declarations": "^2.0.0"
 	},
 	"devDependencies": {
