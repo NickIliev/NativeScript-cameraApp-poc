@@ -185,7 +185,7 @@ function onCreatingView(args) {
             if(android.support.v4.content.ContextCompat.checkSelfPermission(appContext, android.Manifest.permission.CAMERA) == android.content.pm.PackageManager.PERMISSION_GRANTED){
                 
                 console.log("Permison already granted!!!!!");
-                cameraManager.openCamera(mCameraId, mCameraDeviceStateCallback,mBackgroundHandler);
+                cameraManager.openCamera(mCameraId, mStateCallBack /*mCameraDeviceStateCallback*/,mBackgroundHandler);
 
             } else if(android.support.v4.content.ContextCompat.checkSelfPermission(appContext, android.Manifest.permission.CAMERA) == android.content.pm.PackageManager.PERMISSION_DENIED) {
                 console.log("NO PERMISIONS - about to try get them!!!"); // I am crashing here - wrong reference for shouldShowRequestPermissionRationale !?
