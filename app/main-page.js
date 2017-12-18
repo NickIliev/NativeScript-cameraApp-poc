@@ -26,6 +26,7 @@ if (app.android) {
     var mPreviewRequest;
     var mImageReader;
     var mCaptureCallback;
+    var mFlashSupported;
     var mFile;
 }
 
@@ -79,9 +80,6 @@ function captureStillPicture() {
     captureBuilder.addTarget(mImageReader.getSurface());
 
     // Use the same AE and AF modes as the preview.
-    var afMode = android.hardware.camera2.CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE;
-
-    captureBuilder.set(android.hardware.camera2.CaptureRequest.CONTROL_AF_MODE, afMode);
     setAutoFlash(captureBuilder);
 
     var CaptureCallback = android.hardware.camera2.CameraCaptureSession.CaptureCallback.extend({
@@ -92,7 +90,16 @@ function captureStillPicture() {
     });
 
     mCaptureSession.stopRepeating();
-    mCaptureSession.capture(captureBuilder.build(), CaptureCallback, null);
+    mCaptureSession.abortCaptures();
+    mCaptureSession.capture(captureBuilder.build(), new CaptureCallback(), null);
+}
+
+function setAutoFlash(requestBuilder) {
+    console.log("mFlashSupported in setAutoFlash:" + mFlashSupported);
+    if (mFlashSupported) {
+        requestBuilder.set(android.hardware.camera2.CaptureRequest.CONTROL_AE_MODE,
+            android.hardware.camera2.CaptureRequest.CONTROL_AE_MODE.CONTROL_AE_MODE_ON_AUTO_FLASH);
+    }
 }
 
 function createCameraPreviewSession() {
@@ -155,6 +162,9 @@ function onCreatingView(args) {
             var currentCamera = cameras[index];
             var currentCameraSpecs = cameraManager.getCameraCharacteristics(currentCamera);
 
+            var available = currentCameraSpecs.get(android.hardware.camera2.CameraCharacteristics.FLASH_INFO_AVAILABLE);
+            mFlashSupported = available == null ? false : true;
+
             // get available lenses and set the camera-type (front or back)
             var facing = currentCameraSpecs.get(android.hardware.camera2.CameraCharacteristics.LENS_FACING);
 
@@ -195,13 +205,13 @@ function onCreatingView(args) {
             } else if (android.support.v4.content.ContextCompat.checkSelfPermission(appContext, android.Manifest.permission.CAMERA) == android.content.pm.PackageManager.PERMISSION_DENIED) {
                 console.log("NO PERMISIONS - about to try get them!!!"); // I am crashing here - wrong reference for shouldShowRequestPermissionRationale !?
                 permissions.requestPermission(android.Manifest.permission.CAMERA, "I need these permissions to use Android Camera")
-                .then(function() {
-                   console.log("Woo Hoo, I have the power!");
-                   cameraManager.openCamera(mCameraId, mStateCallBack, mBackgroundHandler);
-                })
-                .catch(function() {
-                   console.log("Uh oh, no permissions - plan B time!");
-                });
+                    .then(function () {
+                        console.log("Woo Hoo, I have the power!");
+                        cameraManager.openCamera(mCameraId, mStateCallBack, mBackgroundHandler);
+                    })
+                    .catch(function () {
+                        console.log("Uh oh, no permissions - plan B time!");
+                    });
             }
         } else {
             cameraManager.openCamera(mCameraId, mStateCallBack, mBackgroundHandler);
