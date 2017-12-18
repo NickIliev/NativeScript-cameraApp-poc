@@ -1,22 +1,20 @@
 {
 	"nativescript": {
 		"id": "org.nativescript.cameraApp",
-		"tns-ios": {
-			"version": "2.0.1"
-		},
 		"tns-android": {
-			"version": "3.2.0"
+			"version": "3.3.0"
 		}
 	},
 	"dependencies": {
-		"tns-core-modules": "^3.2.0",
-		"tns-platform-declarations": "^2.0.0"
+		"nativescript-permissions": "^1.2.3",
+		"tns-core-modules": "^3.3.0"
 	},
 	"devDependencies": {
 		"babel-traverse": "6.9.0",
 		"babel-types": "6.9.1",
 		"babylon": "6.8.0",
 		"filewalker": "0.1.2",
-		"lazy": "1.0.11"
+		"lazy": "1.0.11",
+		"tns-platform-declarations": "^3.3.0"
 	}
 }

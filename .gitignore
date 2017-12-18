@@ -8,5 +8,6 @@ tscommand*.tmp.txt
 .vscode
 
 node_modules/
+platforms/
 dist/
 package/
