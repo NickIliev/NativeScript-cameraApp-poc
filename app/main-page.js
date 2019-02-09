@@ -6,6 +6,7 @@
 
 
 var permissions = require("nativescript-permissions");
+var { alert } = require("ui/dialogs");
 var app = require('application');
 var page;
 
@@ -192,32 +193,17 @@ function onCreatingView(args) {
         }
 
         mStateCallBack = new MyStateCallback();
-
+        
         //API 23 runtime permission check
-        if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.LOLLIPOP) {
-            console.log("checking presmisions ....");
-
-            if (android.support.v4.content.ContextCompat.checkSelfPermission(appContext, android.Manifest.permission.CAMERA) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
-
-                console.log("Permison already granted!!!!!");
-                cameraManager.openCamera(mCameraId, mStateCallBack /*mCameraDeviceStateCallback*/, mBackgroundHandler);
-
-            } else if (android.support.v4.content.ContextCompat.checkSelfPermission(appContext, android.Manifest.permission.CAMERA) == android.content.pm.PackageManager.PERMISSION_DENIED) {
-                console.log("NO PERMISIONS - about to try get them!!!"); // I am crashing here - wrong reference for shouldShowRequestPermissionRationale !?
-                permissions.requestPermission(android.Manifest.permission.CAMERA, "I need these permissions to use Android Camera")
-                    .then(function () {
-                        console.log("Woo Hoo, I have the power!");
-                        cameraManager.openCamera(mCameraId, mStateCallBack, mBackgroundHandler);
-                    })
-                    .catch(function () {
-                        console.log("Uh oh, no permissions - plan B time!");
-                    });
-            }
-        } else {
-            cameraManager.openCamera(mCameraId, mStateCallBack, mBackgroundHandler);
-        }
-
-        // cameraManager.openCamera(mCameraId, mStateCallBack, mBackgroundHandler);
+        android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.LOLLIPOP
+            ? cameraManager.openCamera(mCameraId, mStateCallBack, mBackgroundHandler)
+            : permissions
+                .requestPermission(
+                    android.Manifest.permission.CAMERA,
+                    "I need these permissions to use Android Camera"
+                )
+                .then(() => cameraManager.openCamera(mCameraId, mStateCallBack, mBackgroundHandler))
+                .catch(() => alert("Could not gain CAMERA permission. Please go to settings and turn on to use this app".));
 
         mTextureView = new android.view.TextureView(app.android.context);
         mTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
